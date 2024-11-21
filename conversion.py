@@ -9,6 +9,7 @@ import math
 
 # Constants
 OPERATIONS = {'+', '-', '/', '*', '%', '(', ')', '=', '^', '!'}
+KEY_WORDS = {'log'}
 
 # Removes letters from the input
 def remove_letters(user_input):
@@ -142,13 +143,60 @@ def reduce_inner_brackets(user_input, brackets):
         
 # Replace all variables in equation with their corresponding stored values
 def replace_vars(user_input, var_storage):
+    # Replace variables with values
+    for var in var_storage:
+        # Offset variable needed to prevent infinite loop when found variable isn't valid for a swap
+        offset = 0
+
+        # Loop through entire string until all variable candidates checked
+        while user_input[offset:].find(var) != -1:
+            loc = user_input[offset:].find(var)
+            offset_loc = loc + offset
+            left = right = False
+
+            # Check left side of variable
+            if offset_loc == 0: left = True
+            elif user_input[offset_loc - 1] == " " or user_input[offset_loc - 1] in OPERATIONS: left = True
+
+            # Check right side of variable
+            if offset_loc == len(user_input) - len(var): right = True
+            elif user_input[offset_loc + len(var)] == " " or user_input[offset_loc + len(var)] in OPERATIONS: right = True
+
+            # Replace valid variable with stored value
+            if left and right:
+                replacement = "(" + str(var_storage[var]) + ")"
+                user_input = user_input.replace(var, replacement)
+
+            # If found replacement ISN'T valid, only look at rest of the string
+            else:
+                offset += loc + len(var)
+    
+    # Return modified equation
+    return user_input
+
+# Loops through entire string and removes all operators, resulting in a single value
+def reduce_all_operators(user_input, brackets):
+    # Cycle through all operators in string to reduce them one by one
+    while not operators_removed(user_input):
+        # Paranthesis in inputted equation
+        if brackets:
+            res = reduce_inner_brackets(user_input, brackets)
+            user_input = res[0]
+            brackets = res[1]
+
+        # No parenthesis in equation
+        else: user_input = basic_operations(user_input)
+    
+    # Update input
     return user_input
 
 # Main function where backend code is tested
 def main():
-    var_storage = {}
+    # (Setting constants to math values by default)
+    var_storage = {'e': math.e}
     history = []
 
+    # Loop through command responses --> removed later when converted to GUI
     while True:
         # Resulting output
         output = 0
@@ -162,7 +210,7 @@ def main():
         # Quit upon entering nothing
         if inp == "": break
 
-        # Store new variables
+        # Store new variables (maybe make function some time later)
         var_list = []
         while inp.find("=") != -1:
             curr_var = inp[0: inp.find("=")]
@@ -170,51 +218,14 @@ def main():
                 var_list.append(curr_var.strip())
             inp = inp[inp.find("=") + 1:]
 
-        # Replace variables with values
-        for var in var_storage:
-            # Offset variable needed to prevent infinite loop when found variable isn't valid for a swap
-            offset = 0
-
-            # Loop through entire string until all variable candidates checked
-            while inp[offset:].find(var) != -1:
-                loc = inp[offset:].find(var)
-                offset_loc = loc + offset
-                left = right = False
-
-                # Check left side of variable
-                if offset_loc == 0: left = True
-                elif inp[offset_loc - 1] == " " or inp[offset_loc - 1] in OPERATIONS: left = True
-
-                # Check right side of variable
-                if offset_loc == len(inp) - len(var): right = True
-                elif inp[offset_loc + len(var)] == " " or inp[offset_loc + len(var)] in OPERATIONS: right = True
-
-                # Replace valid variable with stored value
-                if left and right:
-                    replacement = "(" + str(var_storage[var]) + ")"
-                    inp = inp.replace(var, replacement)
-
-                # If found replacement ISN'T valid, only look at rest of the string
-                else:
-                    offset += loc + len(var)
+        # Replace all variables in the equation with their respective values
+        inp = replace_vars(inp, var_storage)
 
         # Remove letters from equation (remove later when adding in units / conversions!!!)
         inp = remove_letters(inp)
 
-        # Initialize assuming parenthesis exist
-        brackets = True
-
-        # Cycle through all operators in string to reduce them one by one
-        while not operators_removed(inp):
-            # Paranthesis in inputted equation
-            if brackets:
-                res = reduce_inner_brackets(inp, brackets)
-                inp = res[0]
-                brackets = res[1]
-
-            # No parenthesis in equation
-            else:
-                inp = basic_operations(inp)
+        # Remove all operators from calculation string
+        inp = reduce_all_operators(inp, brackets = True)
 
         # Empty edge case
         if inp == "": 
@@ -222,16 +233,13 @@ def main():
             continue
 
         # If result is an integer, print the integer version
-        elif float(int(float(inp))) == float(inp):
-            output = int(float(inp))
+        elif float(int(float(inp))) == float(inp): output = int(float(inp))
 
         # Otherwise print the float
-        else: 
-            output = inp
+        else: output = inp
 
         # Set variables equal to calculation
-        for var in var_list:
-            var_storage[var] = output
+        for var in var_list: var_storage[var] = output
 
         # Print out the resulting calculation
         print(output)
