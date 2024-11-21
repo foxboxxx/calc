@@ -1,3 +1,9 @@
+# File: calc.py
+# =-=-=-=-=-=-=
+# @author Joe Robertazzi - <tazzi@stanford.edu>
+# Front end code that displays the app GUI
+
+# Imports
 from tkinter import *
 from tkinter.ttk import *
 
