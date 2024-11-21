@@ -140,6 +140,10 @@ def reduce_inner_brackets(user_input, brackets):
     
     return [user_input, brackets]
         
+# Replace all variables in equation with their corresponding stored values
+def replace_vars(user_input, var_storage):
+    return user_input
+
 # Main function where backend code is tested
 def main():
     var_storage = {}
@@ -168,21 +172,31 @@ def main():
 
         # Replace variables with values
         for var in var_storage:
-            while inp.find(var) != -1:
+            # Offset variable needed to prevent infinite loop when found variable isn't valid for a swap
+            offset = 0
+
+            # Loop through entire string until all variable candidates checked
+            while inp[offset:].find(var) != -1:
+                loc = inp[offset:].find(var)
+                offset_loc = loc + offset
                 left = right = False
 
                 # Check left side of variable
-                if inp.find(var) == 0: left = True
-                elif inp[inp.find(var) - 1] == " " or inp[inp.find(var) - 1] in OPERATIONS: left = True
+                if offset_loc == 0: left = True
+                elif inp[offset_loc - 1] == " " or inp[offset_loc - 1] in OPERATIONS: left = True
 
                 # Check right side of variable
-                if inp.find(var) == len(inp) - len(var): right = True
-                elif inp[inp.find(var) + len(var)] == " " or inp[inp.find(var) + len(var)] in OPERATIONS: right = True
+                if offset_loc == len(inp) - len(var): right = True
+                elif inp[offset_loc + len(var)] == " " or inp[offset_loc + len(var)] in OPERATIONS: right = True
 
                 # Replace valid variable with stored value
                 if left and right:
                     replacement = "(" + str(var_storage[var]) + ")"
                     inp = inp.replace(var, replacement)
+
+                # If found replacement ISN'T valid, only look at rest of the string
+                else:
+                    offset += loc + len(var)
 
         # Remove letters from equation (remove later when adding in units / conversions!!!)
         inp = remove_letters(inp)
