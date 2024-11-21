@@ -1,4 +1,3 @@
-import numpy as np
 from tkinter import *
 from tkinter.ttk import *
 
@@ -29,6 +28,4 @@ printButton.pack()
 # Label Creation 
 lbl = Label(frame, text = "") 
 lbl.pack() 
-frame.mainloop() 
-
-
+frame.mainloop()
