@@ -10,6 +10,27 @@ import math
 # Constants
 OPERATIONS = {'+', '-', '/', '*', '%', '(', ')', '=', '^', '!'}
 KEY_WORDS = {'log'}
+UNITS = {}
+
+# (Setting constants to math values by default)
+var_storage = {'e': math.e}
+
+# Basic check before calculations (make sure parenthesis are balanced)
+def are_parenthesis_balanced(user_input):
+    # Initialize stack
+    stack = []
+
+    # Loop through string to make sure that parenthesis match
+    for ch in user_input:
+        if ch == ")":
+            if len(stack) == 0: return False
+            else: stack.pop()
+        elif ch == "(": stack.append(ch)
+        else: continue
+
+    # Return whether parenthesis are balanced
+    if len(stack) == 0: return True
+    else: return False
 
 # Removes letters from the input
 def remove_letters(user_input):
@@ -18,6 +39,14 @@ def remove_letters(user_input):
         if user_input[i].isnumeric() or user_input[i] in OPERATIONS or user_input[i] == '.':
             res += user_input[i]
     return res
+
+# Ignores comments by removing from equation
+def remove_comments(user_input):
+    comment_indices = [user_input.find("//"), user_input.find("#")]
+    if comment_indices != [-1, -1]:
+        comment_index = min(num for num in comment_indices if num != -1)
+        user_input = user_input[0: comment_index]
+    return user_input
 
 # Isolates numerical parts of an equation at a given index
 def find_numerical(user_input, index):
@@ -190,10 +219,54 @@ def reduce_all_operators(user_input, brackets):
     # Update input
     return user_input
 
+# Input a string with an open bracket at the front - will return the index of the matching closing bracket
+def find_closing_bracket(user_input):
+    if user_input[0] != "(": 
+        return -1
+    offset = 1
+    for i in range(1, len(user_input)):
+        if user_input[i] == "(": offset += 1
+        if user_input[i] == ")": offset -= 1
+        if offset == 0: return i
+    return len(user_input) - 1
+
+# Condenses all functions into numerical form
+def condense_mathematical_functions(user_input):
+    for func in KEY_WORDS:
+        offset = 0
+        start = user_input[offset:].lower().find(func)
+        while start != -1:
+            # !!! - Make this a function in another file specially for different math functions - !!!
+            if func == 'log':
+                trail_loc = start + len(func) + offset
+                closing_bracket = -1
+                if trail_loc < len(user_input):
+                    if user_input[trail_loc].isnumeric() or user_input[trail_loc] == ".":
+                        decimal_used = False
+                        first_arg = ""
+                        for i in range(trail_loc, len(user_input)):
+                            if user_input[i] == ".":
+                                if decimal_used == True:
+                                    break
+                                else: decimal_used = True
+                    if user_input[trail_loc] == "(": 
+                        closing_bracket = find_closing_bracket(user_input[trail_loc:])
+                    if closing_bracket != -1:
+                        user_input = user_input[0:trail_loc] + "(" + reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True) + ")" + user_input[trail_loc + closing_bracket + 1:]
+                        offset += trail_loc + 2 + len(reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True))
+                
+                # while trail_loc < len(user_input) and user_input[trail_loc].isnumeric():
+                #     arg *= 10
+                #     arg += float(user_input[trail_loc])
+                #     trail_loc += 1
+                # replacement = math.log(arg, base)
+                # user_input = user_input[0:start] + str(replacement) + user_input[trail_loc:]
+            start = user_input[offset:].lower().find(func)
+    return user_input
+
+
 # Main function where backend code is tested
 def main():
-    # (Setting constants to math values by default)
-    var_storage = {'e': math.e}
     history = []
 
     # Loop through command responses --> removed later when converted to GUI
@@ -207,8 +280,16 @@ def main():
         # Add calculation to history
         history.append(inp)
 
+        # If invalid input, display nothing (parenthesis not balanced)
+        if not are_parenthesis_balanced(inp): 
+            print()
+            continue
+
         # Quit upon entering nothing
         if inp == "": break
+
+        # Remove comments from consideration
+        inp = remove_comments(inp)
 
         # Store new variables (maybe make function some time later)
         var_list = []
@@ -221,6 +302,15 @@ def main():
         # Replace all variables in the equation with their respective values
         inp = replace_vars(inp, var_storage)
 
+        # --------------------------------------
+
+        # Remove all spaces from string
+        inp = inp.replace(" ", "")
+
+        # Function replacement
+        inp = condense_mathematical_functions(inp)
+
+        # --------------------------------------
         # Remove letters from equation (remove later when adding in units / conversions!!!)
         inp = remove_letters(inp)
 

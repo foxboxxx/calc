@@ -27,31 +27,31 @@ def get_text():
     return text
 
 def update_output():
-    inp = get_text()
-    var_storage = {'e': math.e}
-    var_list = []
-    while inp.find("=") != -1:
-        curr_var = inp[0: inp.find("=")]
-        if curr_var != "":
-            var_list.append(curr_var.strip())
-        inp = inp[inp.find("=") + 1:]
-    inp = replace_vars(inp, var_storage)
-    inp = remove_letters(inp)
-    brackets = True
-    while not operators_removed(inp):
-        if brackets:
-            res = reduce_inner_brackets(inp, brackets)
-            inp = res[0]
-            brackets = res[1]
-        else: inp = basic_operations(inp)
-    if inp == "":
-        output = inp
-    elif float(int(float(inp))) == float(inp): output = int(float(inp))
-    else: output = inp
-    for var in var_list: var_storage[var] = output
-    label.config(text = output)
-    # label.config(text = get_text)
-    window.after(10, update_output)
+    # inp = get_text()
+    # var_storage = {'e': math.e}
+    # var_list = []
+    # while inp.find("=") != -1:
+    #     curr_var = inp[0: inp.find("=")]
+    #     if curr_var != "":
+    #         var_list.append(curr_var.strip())
+    #     inp = inp[inp.find("=") + 1:]
+    # inp = replace_vars(inp, var_storage)
+    # inp = remove_letters(inp)
+    # brackets = True
+    # while not operators_removed(inp):
+    #     if brackets:
+    #         res = reduce_inner_brackets(inp, brackets)
+    #         inp = res[0]
+    #         brackets = res[1]
+    #     else: inp = basic_operations(inp)
+    # if inp == "":
+    #     output = inp
+    # elif float(int(float(inp))) == float(inp): output = int(float(inp))
+    # else: output = inp
+    # for var in var_list: var_storage[var] = output
+    # label.config(text = output)
+    label.config(text = get_text)
+    # window.after(10, update_output)
 
 button = Button(window, text = "Click!", command = get_text)
 button.pack()
