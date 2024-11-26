@@ -1,7 +1,7 @@
 # File: parser.py
 # =-=-=-=-=-=-=-=-=-=
 # @author Joe Robertazzi - <tazzi@stanford.edu>
-# Equation parser 
+# Equation parser using the Shunting Yard Algorithm (implemented with my own personal additions)
 
 # Imports
 import numpy as np
@@ -25,11 +25,16 @@ def parse(user_input):
     i = 0
     # Cycle through input string
     while i < len(user_input):
-        ch = user_input[i]
-
-        # while i < len(user_input) and ch not in OPERATORS.keys() and not user_input[i].isnumeric():
+        ch = ""
+        while i < len(user_input) and ch not in OPERATORS.keys() and not user_input[i].isnumeric():
+            if user_input[i] == " ": 
+                ch = ""
+            else: 
+                ch += user_input[i]
+            i += 1
+        if ch in OPERATORS.keys(): i -= 1
+        else: ch = user_input[i] 
             
-        
         # Parse numeric term (including floating point numbers)
         if ch not in OPERATORS.keys():
             while i < len(user_input) and ch.isnumeric():
@@ -46,6 +51,7 @@ def parse(user_input):
                 if i < len(user_input): ch = user_input[i]
             while i < len(user_input) and ch not in OPERATORS.keys():
                 i += 1
+                if i < len(user_input): ch = user_input[i]
             output += " "
         
         # Parse operator terms
@@ -96,7 +102,7 @@ def parse(user_input):
             else: continue
 
             # Basic operations
-            if curr in {'+', '-', '/', '*', '^'}:
+            if curr in {'+', '-', '/', '*', '^', 'log'}:
                 if len(num_stack) > 0: left = num_stack.pop()
                 else: 
                     num_stack.append(right)
@@ -111,6 +117,10 @@ def parse(user_input):
                 num_stack.append(str(float(left) / float(right)))
             elif curr == "^":
                 num_stack.append(str(float(left) ** float(right)))
+            elif curr == "sin":
+                num_stack.append(str(math.sin(float(right))))
+            elif curr == "log":
+                num_stack.append(str(math.log(float(right), float(left))))
     
     if len(num_stack) == 1:
         return num_stack[0]

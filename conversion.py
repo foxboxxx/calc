@@ -15,7 +15,7 @@ KEY_WORDS = {'log'}
 UNITS = {}
 
 # (Setting constants to math values by default)
-var_storage = {'e': math.e}
+var_storage = {'e': math.e, 'pi': math.pi}
 
 # Removes letters from the input
 def remove_letters(user_input):
@@ -77,42 +77,6 @@ def find_closing_bracket(user_input):
         if offset == 0: return i
     return len(user_input) - 1
 
-# Condenses all functions into numerical form
-def condense_mathematical_functions(user_input):
-   # for func in KEY_WORDS:
-        
-        # offset = 0
-        # start = user_input[offset:].lower().find(func)
-        # while start != -1:
-        #     # !!! - Make this a function in another file specially for different math functions - !!!
-        #     if func == 'log':
-        #         trail_loc = start + len(func) + offset
-        #         closing_bracket = -1
-        #         if trail_loc < len(user_input):
-        #             if user_input[trail_loc].isnumeric() or user_input[trail_loc] == ".":
-        #                 decimal_used = False
-        #                 first_arg = ""
-        #                 for i in range(trail_loc, len(user_input)):
-        #                     if user_input[i] == ".":
-        #                         if decimal_used == True:
-        #                             break
-        #                         else: decimal_used = True
-        #             if user_input[trail_loc] == "(": 
-        #                 closing_bracket = find_closing_bracket(user_input[trail_loc:])
-        #             if closing_bracket != -1:
-        #                 user_input = user_input[0:trail_loc] + "(" + reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True) + ")" + user_input[trail_loc + closing_bracket + 1:]
-        #                 offset += trail_loc + 2 + len(reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True))
-                
-        #         # while trail_loc < len(user_input) and user_input[trail_loc].isnumeric():
-        #         #     arg *= 10
-        #         #     arg += float(user_input[trail_loc])
-        #         #     trail_loc += 1
-        #         # replacement = math.log(arg, base)
-        #         # user_input = user_input[0:start] + str(replacement) + user_input[trail_loc:]
-        #     start = user_input[offset:].lower().find(func)
-    return user_input
-
-
 # Main function where backend code is tested
 def main():
     history = []
@@ -153,7 +117,7 @@ def main():
         # --------------------------------------
 
         # Remove all spaces from string
-        inp = inp.replace(" ", "")
+        # inp = inp.replace(" ", "")
 
         print(inp)
 
@@ -162,7 +126,7 @@ def main():
 
         # --------------------------------------
         # Remove letters from equation (remove later when adding in units / conversions!!!)
-        #inp = remove_letters(inp)
+        # inp = remove_letters(inp)
 
         inp = parse(inp)
 
