@@ -10,8 +10,8 @@ import math
 import re
 
 # Constants
-OPERATIONS = {'+', '-', '/', '*', '%', '(', ')', '=', '^', '!'}
-KEY_WORDS = {'log'}
+# OPERATIONS = {'+', '-', '/', '*', '%', '(', ')', '=', '^', '!'}
+# KEY_WORDS = {'log'}
 UNITS = {}
 
 # (Setting constants to math values by default)
@@ -33,8 +33,25 @@ def remove_comments(user_input):
         user_input = user_input[0: comment_index]
     return user_input
 
+# Fixes back to back parenthesis so that they multiply instead of doing nothing
+def add_parenthesis_multiplication(user_input):
+    # # Fix situation with )( using regex substitution
+    # user_input = re.sub(r"((?<!log)\(.*)\)\(", r"\1)*(", user_input)
+
+    # # Fix situation with num( using regex substitution
+    # user_input = re.sub(r"(\d)\(", r"\1*(", user_input)
+
+    # # Fix situation with )num using regex substitution
+    # user_input = re.sub(r"\)(\d)", r")*\1", user_input)
+
+    # Return fixed string
+    return user_input
+
 # Replace all variables in equation with their corresponding stored values
 def replace_vars(user_input, var_storage):
+    # Check for edge case where the string is empty
+    if user_input == "" or user_input == None: return
+
     # Replace variables with values
     for var in var_storage:
         # Offset variable needed to prevent infinite loop when found variable isn't valid for a swap
@@ -48,11 +65,11 @@ def replace_vars(user_input, var_storage):
 
             # Check left side of variable
             if offset_loc == 0: left = True
-            elif user_input[offset_loc - 1] == " " or user_input[offset_loc - 1] in OPERATIONS: left = True
+            elif user_input[offset_loc - 1] == " " or user_input[offset_loc - 1] in OPERATORS: left = True
 
             # Check right side of variable
             if offset_loc == len(user_input) - len(var): right = True
-            elif user_input[offset_loc + len(var)] == " " or user_input[offset_loc + len(var)] in OPERATIONS: right = True
+            elif user_input[offset_loc + len(var)] == " " or user_input[offset_loc + len(var)] in OPERATORS: right = True
 
             # Replace valid variable with stored value
             if left and right:
@@ -65,17 +82,6 @@ def replace_vars(user_input, var_storage):
     
     # Return modified equation
     return user_input
-
-# Input a string with an open bracket at the front - will return the index of the matching closing bracket
-def find_closing_bracket(user_input):
-    if user_input[0] != "(": 
-        return -1
-    offset = 1
-    for i in range(1, len(user_input)):
-        if user_input[i] == "(": offset += 1
-        if user_input[i] == ")": offset -= 1
-        if offset == 0: return i
-    return len(user_input) - 1
 
 # Main function where backend code is tested
 def main():
@@ -92,11 +98,6 @@ def main():
         # Add calculation to history
         history.append(inp)
 
-        # If invalid input, display nothing (parenthesis not balanced) --> DEPRECIATED
-        # if not are_parenthesis_balanced(inp): 
-        #     print()
-        #     continue
-
         # Quit upon entering nothing
         if inp == "": break
 
@@ -111,23 +112,15 @@ def main():
                 var_list.append(curr_var.strip())
             inp = inp[inp.find("=") + 1:]
 
+        # Fix back-to-back parenthesis
+        inp = add_parenthesis_multiplication(inp)
+
         # Replace all variables in the equation with their respective values
         inp = replace_vars(inp, var_storage)
 
-        # --------------------------------------
-
-        # Remove all spaces from string
-        # inp = inp.replace(" ", "")
-
         print(inp)
 
-        # Function replacement
-        # inp = condense_mathematical_functions(inp)
-
-        # --------------------------------------
-        # Remove letters from equation (remove later when adding in units / conversions!!!)
-        # inp = remove_letters(inp)
-
+        # Parses equation using Shunting Yard Algorithm and returns result
         inp = parse(inp)
 
         # Empty edge case

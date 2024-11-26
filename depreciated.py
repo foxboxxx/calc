@@ -1,7 +1,7 @@
 # File: depreciated.py
 # =-=-=-=-=-=-=-=-=-=
 # @author Joe Robertazzi - <tazzi@stanford.edu>
-# Functions from previous builts that were made obsolete
+# Functions from previous calculator builds that were made obsolete (mainly from Shunting )
 
 import numpy as np
 import math
@@ -164,37 +164,47 @@ def reduce_all_operators(user_input, brackets):
     # Update input
     return user_input
 
+# Input a string with an open bracket at the front - will return the index of the matching closing bracket
+def find_closing_bracket(user_input):
+    if user_input[0] != "(": 
+        return -1
+    offset = 1
+    for i in range(1, len(user_input)):
+        if user_input[i] == "(": offset += 1
+        if user_input[i] == ")": offset -= 1
+        if offset == 0: return i
+    return len(user_input) - 1
+
 # Condenses all functions into numerical form
 def condense_mathematical_functions(user_input):
-   for func in KEY_WORDS:
-        offset = 0
-        start = user_input[offset:].lower().find(func)
-        while start != -1:
-            # !!! - Make this a function in another file specially for different math functions - !!!
-            if func == 'log':
-                trail_loc = start + len(func) + offset
-                closing_bracket = -1
-                if trail_loc < len(user_input):
-                    if user_input[trail_loc].isnumeric() or user_input[trail_loc] == ".":
-                        decimal_used = False
-                        first_arg = ""
-                        for i in range(trail_loc, len(user_input)):
-                            if user_input[i] == ".":
-                                if decimal_used == True:
-                                    break
-                                else: decimal_used = True
-                    if user_input[trail_loc] == "(": 
-                        closing_bracket = find_closing_bracket(user_input[trail_loc:])
-                    if closing_bracket != -1:
-                        user_input = user_input[0:trail_loc] + "(" + reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True) + ")" + user_input[trail_loc + closing_bracket + 1:]
-                        offset += trail_loc + 2 + len(reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True))
+#    for func in KEY_WORDS:
+#         offset = 0
+#         start = user_input[offset:].lower().find(func)
+#         while start != -1:
+#             # !!! - Make this a function in another file specially for different math functions - !!!
+#             if func == 'log':
+#                 trail_loc = start + len(func) + offset
+#                 closing_bracket = -1
+#                 if trail_loc < len(user_input):
+#                     if user_input[trail_loc].isnumeric() or user_input[trail_loc] == ".":
+#                         decimal_used = False
+#                         first_arg = ""
+#                         for i in range(trail_loc, len(user_input)):
+#                             if user_input[i] == ".":
+#                                 if decimal_used == True:
+#                                     break
+#                                 else: decimal_used = True
+#                     if user_input[trail_loc] == "(": 
+#                         closing_bracket = find_closing_bracket(user_input[trail_loc:])
+#                     if closing_bracket != -1:
+#                         user_input = user_input[0:trail_loc] + "(" + reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True) + ")" + user_input[trail_loc + closing_bracket + 1:]
+#                         offset += trail_loc + 2 + len(reduce_all_operators(user_input[trail_loc: trail_loc + closing_bracket + 1], True))
                 
-                while trail_loc < len(user_input) and user_input[trail_loc].isnumeric():
-                    arg *= 10
-                    arg += float(user_input[trail_loc])
-                    trail_loc += 1
-                replacement = math.log(arg, base)
-                user_input = user_input[0:start] + str(replacement) + user_input[trail_loc:]
-            start = user_input[offset:].lower().find(func)
+#                 while trail_loc < len(user_input) and user_input[trail_loc].isnumeric():
+#                     arg *= 10
+#                     arg += float(user_input[trail_loc])
+#                     trail_loc += 1
+#                 replacement = math.log(arg, base)
+#                 user_input = user_input[0:start] + str(replacement) + user_input[trail_loc:]
+#             start = user_input[offset:].lower().find(func)
     return user_input
-

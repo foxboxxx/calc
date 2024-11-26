@@ -12,7 +12,7 @@ OPERATORS = {'(' : 0, ')' : 0,
              '+' : 1, '-' : 1,
              '*' : 2, '/' : 2, 'mod' : 2,
              '^' : 3, 'log' : 3, 'ln' : 3, 'sqrt' : 3,
-             'sin' : 3, 'cos' : 3, 'tan' : 3,
+             'sin' : 3, 'cos' : 3, 'tan' : 3, 'arcsin' : 3, 'arccos' : 3, 'arctan' : 3,
              '!' : 4
             }
 
@@ -33,6 +33,7 @@ def parse(user_input):
                 ch += user_input[i]
             i += 1
         if ch in OPERATORS.keys(): i -= 1
+        elif i >= len(user_input): return
         else: ch = user_input[i] 
             
         # Parse numeric term (including floating point numbers)
@@ -102,7 +103,7 @@ def parse(user_input):
             else: continue
 
             # Basic operations
-            if curr in {'+', '-', '/', '*', '^', 'log'}:
+            if curr in {'+', '-', '/', '*', '^', 'log', 'mod'}:
                 if len(num_stack) > 0: left = num_stack.pop()
                 else: 
                     num_stack.append(right)
@@ -115,13 +116,23 @@ def parse(user_input):
                 num_stack.append(str(float(left) * float(right)))
             elif curr == "/":
                 num_stack.append(str(float(left) / float(right)))
+            elif curr == "mod":
+                num_stack.append(str(float(left) % float(right)))
             elif curr == "^":
                 num_stack.append(str(float(left) ** float(right)))
-            elif curr == "sin":
-                num_stack.append(str(math.sin(float(right))))
             elif curr == "log":
                 num_stack.append(str(math.log(float(right), float(left))))
-    
+            elif curr == "sqrt":
+                num_stack.append(str(math.sqrt(float(right))))
+            elif curr == "!":
+                num_stack.append(str(math.factorial(int(right))))
+            elif curr == "sin":
+                num_stack.append(str(math.sin(float(right))))
+            elif curr == "cos":
+                num_stack.append(str(math.cos(float(right))))
+            elif curr == "tan":
+                num_stack.append(str(math.tan(float(right))))
+
     if len(num_stack) == 1:
         return num_stack[0]
     else:
